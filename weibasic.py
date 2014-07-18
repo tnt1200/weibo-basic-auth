@@ -3,15 +3,16 @@
 import requests
 from requests.auth import HTTPBasicAuth
 
-SOURCE = 0000000000
+SOURCE = 0000000000  # replace to your APP_KEY
+
 
 class ApiClient(object):
 
-    def __init__(self, username, password):
+    def __init__(self, username, password):  # init with your Weiboaccount
         self.source = SOURCE
         self.auth = HTTPBasicAuth(username, password)
         self.base_url = "https://api.weibo.com/2/"
-        self.json_url = "https://api.weibo.com/2/%s.json"
+        self.json_url = "https://api.weibo.com/2/%s.json"  # API v2 address
 
     def __getattr__(self, attr):
         return _Callable(self, attr)
@@ -19,12 +20,14 @@ class ApiClient(object):
     def http_call(self, method, path, **params):
         if method == 'get':
             params['source'] = self.source
-            r = requests.get(self.json_url % path, params=params, auth=self.auth)
-            return r.json()
+            req = requests.get(self.json_url %
+                               path, params=params, auth=self.auth) # reference http://open.weibo.com
+            return req.json()
         if method == 'post':
             params['source'] = self.source
-            r = requests.get(self.json_url % path, data=params, auth=self.auth)
-            return r.json()
+            req = requests.get(self.json_url %
+                               path, data=params, auth=self.auth)
+            return req.json()
 
 
 class _Callable(object):
@@ -52,15 +55,15 @@ class _Executable(object):
     def __init__(self, client, method, path):
         self._client = client
         self._method = method
-        self._path = path
+        self._path = path # API path 
 
     def __call__(self, **kw):
         if self._method == 'get':
-            d=self._client.http_call('get', self._path, **kw)
-            return d
+            data = self._client.http_call('get', self._path, **kw)
+            return data
         if self._method == 'post':
-            d=self._client.http_call('post', self._path, **kw)
-            return d
+            data = self._client.http_call('post', self._path, **kw)
+            return data
         else:
             pass
 
@@ -69,5 +72,5 @@ class _Executable(object):
 
     __repr__ = __str__
 
-if __name__ =='__main__':
+if __name__ == '__main__':
     pass
